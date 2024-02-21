@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 enum JsonError: Error {
     case failedRequest
@@ -14,6 +15,7 @@ enum JsonError: Error {
 
 class DataProvider {
     private var request = Set<AnyCancellable>()
+    private var imageRequest = Set<AnyCancellable>()
     
     // using generic type and combine swift will figure out the type from the decodable we pass or from our comletion closure when we if and when we specify T
     func fetchRequest<T: Decodable>(_ url: URL, defaultValue: T, completion: @escaping (T) -> Void) {
@@ -61,5 +63,30 @@ class DataProvider {
                 completion(data) // escaping closure to capture data
             })
             .store(in: &request)
+    }
+    
+    func fetchImages(_ url: URL, completion: @escaping (UIImage) -> Void) {
+        let config = URLSessionConfiguration.default
+        config.waitsForConnectivity = true // wait for device to have active connection
+        
+        URLSession(configuration: config).dataTaskPublisher(for: url)
+            .tryMap { data, response -> Data in
+                guard let response = response as? HTTPURLResponse, (200..<300).contains(response.statusCode)
+                else { throw JsonError.failedRequest }
+                return data
+            }
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished:
+                    print()
+                case .failure(let error):
+                    print("Failure to sink image \(error.localizedDescription)")
+                }
+                
+            }, receiveValue: { data in
+                completion(UIImage(data: data) ?? UIImage(systemName: "xmark")!)
+            })
+            .store(in: &imageRequest)
+            
     }
 }

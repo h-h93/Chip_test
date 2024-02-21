@@ -7,14 +7,14 @@
 
 import Foundation
 
+// MARK: - Dogs
 struct Dogs: Codable {
     let message: [String: [String]]
     let status: String
 }
 
-class DogsModel {
-    
-    init() {
-        
-    }
+// MARK: - DogImages
+struct DogImages: Codable {
+    let message: [String]
+    let status: String
 }

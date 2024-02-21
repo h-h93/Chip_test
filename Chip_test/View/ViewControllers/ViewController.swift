@@ -18,7 +18,6 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupHomePageView()
-        
     }
     
     func setupHomePageView() {

@@ -7,17 +7,18 @@
 
 import UIKit
 
-class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
+class HomePageCollectionView: UIView, UICollectionViewDelegate {
+    // create instance of our data provider so we can grab dogs
     let dataProvider = DataProvider()
+    // initiliase a url to pull dogs
     let url = URL(string: "https://dog.ceo/api/breeds/list/all")!
+    
+    let collectionData = HomePageCollectionData()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
         setupCollectionView()
-        dataProvider.fetchDogs(url) { completion in
-            print(completion.message)
-        }
         
     }
     
@@ -29,8 +30,8 @@ class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionView
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: getCompositionalLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
+        collectionView.dataSource = collectionData
+        collectionView.register(CustomHomeCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.backgroundColor = .clear
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.showsVerticalScrollIndicator = false
@@ -65,18 +66,6 @@ class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionView
         let layout = UICollectionViewCompositionalLayout(section: section)
         
         return layout
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
-        //cell.backgroundColor = .random
-        cell.layer.cornerRadius = 10
-        
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
     }
     
 }
