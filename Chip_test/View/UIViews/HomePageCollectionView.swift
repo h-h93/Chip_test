@@ -8,11 +8,16 @@
 import UIKit
 
 class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
-
+    let dataProvider = DataProvider()
+    let url = URL(string: "https://dog.ceo/api/breeds/list/all")!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
         setupCollectionView()
+        dataProvider.fetchDogs(url) { completion in
+            print(completion.message)
+        }
         
     }
     
@@ -47,7 +52,7 @@ class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionView
         let rightPanel = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
         rightPanel.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
         
-        // create our nested group to contain left panel and right panel squares going vertically i.e. side by side specifying that each item in the sub items should be 0.5 width of the screen so left panel is half the width and right panel is half the width of the screen this let's us layout two panels side by side. I've also specified that both panel should take up the full height of the main group they will be contained in
+        // create our nested group to contain left panel and right panel squares going vertically i.e. side by side specifying that each item in the sub items should be 0.5 width of the screen so left panel is half the width and right panel is half the width of the screen this let's us layout two panels side by side. I've also specified that both panels should take up the full height of the main group they will be contained in
         let leftAndRightPanelGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .fractionalHeight(1)), subitems: [leftPanel, rightPanel])
         
         // each item is contained in a group think of a group as an almost cell, the group we specified here contains our nested left and right panel group in a main group that takes up the full width of the screen and half the height of the view
@@ -66,7 +71,7 @@ class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionView
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
         //cell.backgroundColor = .random
         cell.layer.cornerRadius = 10
-        cell.backgroundColor = .red
+        
         return cell
     }
     
