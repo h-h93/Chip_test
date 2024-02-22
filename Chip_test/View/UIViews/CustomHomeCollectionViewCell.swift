@@ -22,12 +22,13 @@ class CustomHomeCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+        let randomColor = UIColor.random.cgColor
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
         imageView.layer.borderWidth = 0.5
         imageView.layer.cornerRadius = 5
-        imageView.layer.borderColor = UIColor.random.cgColor
+        imageView.layer.borderColor = randomColor
+        imageView.tintColor = UIColor(cgColor: randomColor)
         self.addSubview(imageView)
         self.addSubview(textView)
         

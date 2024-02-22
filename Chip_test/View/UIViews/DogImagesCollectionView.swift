@@ -7,17 +7,17 @@
 
 import UIKit
 
-class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
+class DogImagesCollectionView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
     var collectionView: UICollectionView!
     
     let collectionData = HomePageCollectionData()
-    
-    var dogs = [String]()
+    var images = [UIImage]()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
         setupCollectionView()
+        NotificationCenter.default.addObserver(self, selector: #selector(loadImages),name: NSNotification.Name("com.download.complete"), object: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -27,6 +27,7 @@ class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionView
     func setupCollectionView() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: getCompositionalLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(CustomHomeCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.backgroundColor = .clear
@@ -46,37 +47,39 @@ class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionView
         // left panel takes full width and height
         let leftPanel = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
         leftPanel.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
-        // right panel takes full width and height
-        let rightPanel = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-        rightPanel.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
-        
-        // create our nested group to contain left panel and right panel squares going vertically i.e. side by side specifying that each item in the sub items should be 0.5 width of the screen so left panel is half the width and right panel is half the width of the screen this let's us layout two panels side by side. I've also specified that both panels should take up the full height of the main group they will be contained in
-        let leftAndRightPanelGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .fractionalHeight(1)), subitems: [leftPanel, rightPanel])
-        
-        // each item is contained in a group think of a group as an almost cell, the group we specified here contains our nested left and right panel group in a main group that takes up the full width of the screen and half the height of the view
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(0.5)), subitems: [leftAndRightPanelGroup])
+
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)), subitems: [leftPanel])
         
         //--------- Container Group ---------//
         let containerGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)), subitems: [group])
         let section = NSCollectionLayoutSection(group: containerGroup)
-        
+        section.orthogonalScrollingBehavior = .paging
         let layout = UICollectionViewCompositionalLayout(section: section)
         
         return layout
     }
     
+    @objc func loadImages() {
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! CustomHomeCollectionViewCell
-        //cell.backgroundColor = .random
         cell.layer.cornerRadius = 10
-        cell.textView.text = dogs[indexPath.item]
-        let image = UIImage(systemName: "dog")?.withRenderingMode(.alwaysTemplate)
-        cell.imageView.image = image
+        if images.isEmpty || images.count < indexPath.item {
+            let image = UIImage(systemName: "dog")?.withRenderingMode(.alwaysTemplate)
+            cell.imageView.image = image
+        } else {
+            let image = images[indexPath.item]
+            cell.imageView.image = image
+        }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return dogs.count
+        return images.count
     }
     
 }
