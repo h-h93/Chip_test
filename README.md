@@ -30,6 +30,7 @@ bash
 Copy code
 open Chip_test.xcodeproj
 Build and run the project in Xcode.
+
 Usage
 
 Upon launching the app, you'll see a collection view displaying various dog breeds.
