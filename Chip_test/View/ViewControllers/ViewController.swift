@@ -6,10 +6,10 @@
 //
 
 import UIKit
+import Combine
+
 
 class ViewController: UIViewController, UICollectionViewDelegate {
-    let dataProvider = DataProvider()
-    
     let homePageView: HomePageCollectionView = {
         let view = HomePageCollectionView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -19,16 +19,7 @@ class ViewController: UIViewController, UICollectionViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        // grab our dogs data
-        dataProvider.fetchDogs { dogs in
-            // send pass it along to populate our collection view
-            self.homePageView.dogs = dogs
-            // reload our data on main
-            DispatchQueue.main.async {
-                self.homePageView.collectionView.reloadData()
-            }
-        }
-
+        title = "Dog API"
         setupHomePageView()
     }
     
@@ -45,13 +36,14 @@ class ViewController: UIViewController, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let dogImageViewController = DogImagesViewController()
-        let dogBreed = homePageView.dogs[indexPath.item]
-        dataProvider.getImageUrls(breed: dogBreed, numberOfImages: 10) { complete in
-            dogImageViewController.urls = complete
+        let breed = homePageView.dogs[indexPath.item].breed
+        let dataProvider = homePageView.dataProvider
+        dataProvider.getImageUrls(breed: breed, numberOfImages: 10) { complete in
+            let url = complete
+            dogImageViewController.urls = url
             self.navigationController?.pushViewController(dogImageViewController, animated: true)
         }
     }
-
-
+    
 }
 

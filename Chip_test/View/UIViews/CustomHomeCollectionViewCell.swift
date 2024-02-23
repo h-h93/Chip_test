@@ -13,6 +13,7 @@ class CustomHomeCollectionViewCell: UICollectionViewCell {
         let textView = UITextView()
         textView.isEditable = false
         textView.textColor = .black
+        textView.backgroundColor = .white
         textView.translatesAutoresizingMaskIntoConstraints = false
         // apply accessibility to text
         textView.font = UIFont.preferredFont(forTextStyle: .body)

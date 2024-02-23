@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 // MARK: - Dogs
 struct Dogs: Codable {
@@ -17,4 +18,11 @@ struct Dogs: Codable {
 struct DogImages: Codable {
     let message: [String]?
     let status: String?
+}
+
+// holding our dogs in a custom struct so we can assign image and imageurl
+struct DogsModel {
+    var breed: String
+    var imageURL: URL
+    var image: UIImage?
 }

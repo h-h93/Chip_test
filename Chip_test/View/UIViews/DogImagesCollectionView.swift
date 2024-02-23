@@ -10,14 +10,12 @@ import UIKit
 class DogImagesCollectionView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
     var collectionView: UICollectionView!
     
-    let collectionData = HomePageCollectionData()
     var images = [UIImage]()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
         setupCollectionView()
-        NotificationCenter.default.addObserver(self, selector: #selector(loadImages),name: NSNotification.Name("com.download.complete"), object: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -57,12 +55,6 @@ class DogImagesCollectionView: UIView, UICollectionViewDelegate, UICollectionVie
         let layout = UICollectionViewCompositionalLayout(section: section)
         
         return layout
-    }
-    
-    @objc func loadImages() {
-        DispatchQueue.main.async {
-            self.collectionView.reloadData()
-        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

@@ -15,7 +15,7 @@ class Requests {
     private var dogURLReqeust = Set<AnyCancellable>()
     private var dataRequest = Set<AnyCancellable>()
     
-    // using generic type and combine swift will figure out the type from the decodable we pass or from our completion closure when we specify T
+    // using generic type and combine swift will figure out the type from the decodable we pass or from our completion closure when we specify T this one receives on main thread
     func fetchRequest<T: Decodable>(_ url: URL, defaultValue: T, completion: @escaping (T) -> Void) {
         let decoder = JSONDecoder()
         let config = URLSessionConfiguration.default
@@ -62,17 +62,19 @@ class Requests {
             })
             .store(in: &dogURLReqeust)
     }
-    
-    // Utility combine function to get any data type back up to individual to convert data to image etc...
-    func fetchDataCombine(_ url: URL, defaultValue: Data, completion: @escaping (Data) -> Void) {
-        URLSession.shared.dataTaskPublisher(for: url)
-        // create a pipeline of functions
-            .retry(1) // retry once as it is expensive to make network calls
-            .map(\.data) // pull out just the data
-            .replaceError(with: defaultValue) // replace error with our default value
-            .receive(on: DispatchQueue.global(qos: .background)) // receive on main as we would like to perform some ui actions
-            .sink(receiveValue: completion) // get back the value / sink
-            .store(in: &dataRequest)
+    // converted a standard image download function to a combine function with a trailing closure, using this to fetch images
+    func fetchData(_ url: URL, defaultValue: Data, completion: @escaping (Data) -> Void) {
+        DispatchQueue.global(qos: .background).async {
+            URLSession.shared.dataTaskPublisher(for: url)
+            // create a pipeline of functions
+                .retry(1) // retry once as it is expensive to make network calls
+                .map(\.data) // pull out just the data
+                .replaceError(with: defaultValue) // replace error with our default value
+                .receive(on: DispatchQueue.main) // receive on background as i'm currenly using it for displaying images only
+                .sink(receiveValue: completion) // get back the value / sink
+                .store(in: &self.dataRequest)
+        }
+        
     }
     
     // below is how i would originally do it without the use of combine to make a network request leaving it in here as this was how i originally did it before converting to combine

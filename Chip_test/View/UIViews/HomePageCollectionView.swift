@@ -7,16 +7,26 @@
 
 import UIKit
 
-class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
+class HomePageCollectionView: UIView, UICollectionViewDataSource {
+    let dataProvider = DataProvider()
     var collectionView: UICollectionView!
-    
-    let collectionData = HomePageCollectionData()
-    
-    var dogs = [String]()
+    var dogs = [DogsModel]()
+    var displayImages = [UIImage]()
+    let image = UIImage(systemName: "dog")?.withRenderingMode(.alwaysTemplate)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
+        // grab our dogs data
+        dataProvider.fetchDogs { dogs in
+            // reload our data on main
+            DispatchQueue.main.async {
+                // pass it along to populate our collection view
+                self.dogs.append(dogs)
+                print(dogs.imageURL)
+                self.collectionView.reloadData()
+            }
+        }
         setupCollectionView()
     }
     
@@ -69,14 +79,28 @@ class HomePageCollectionView: UIView, UICollectionViewDelegate, UICollectionView
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! CustomHomeCollectionViewCell
         //cell.backgroundColor = .random
         cell.layer.cornerRadius = 10
-        cell.textView.text = dogs[indexPath.item]
-        let image = UIImage(systemName: "dog")?.withRenderingMode(.alwaysTemplate)
-        cell.imageView.image = image
+        cell.textView.text = dogs[indexPath.item].breed
+        // only get images if and when we need, if i was using kingfisher i would move this download image code to init and store images in swift data then pull images from there
+        if dogs[indexPath.item].image == image || dogs[indexPath.item].image == nil {
+            downloadImage(dog: dogs[indexPath.item], index: indexPath.item)
+            cell.imageView.image = image
+        } else {
+            let image = dogs[indexPath.item].image
+            cell.imageView.image = image
+        }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return dogs.count
+    }
+    
+    // currently downloading 1 image for each dog to display. Not using Kingfisher library to cache and also in general to store the image as i'm not sure if allowed to use 3rd party lib.
+    func downloadImage(dog: DogsModel, index: Int) {
+            self.dataProvider.downloadImages(dog.imageURL) { image in
+                let compressedImg = image.jpegData(compressionQuality: 0.5)
+                self.dogs[index].image = UIImage(data: compressedImg!)
+            }
     }
     
 }

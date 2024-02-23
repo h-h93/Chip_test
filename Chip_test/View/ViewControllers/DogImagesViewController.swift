@@ -19,10 +19,9 @@ class DogImagesViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Dog Pics"
         view.backgroundColor = .white
-        
         getImages()
-
         setupHomePageView()
     }
     
@@ -35,15 +34,15 @@ class DogImagesViewController: UIViewController {
             dogImageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
-    
+    // download the images to display
     func getImages() {
         if !urls.isEmpty {
             DispatchQueue.global(qos: .background).async {
                 for i in self.urls {
                     let url = URL(string: i)!
                     self.dataProvider.downloadImages(url) { image in
-                        self.dogImageView.images.append(image)
                         DispatchQueue.main.async {
+                            self.dogImageView.images.append(image)
                             self.dogImageView.collectionView.reloadData()
                         }
                     }

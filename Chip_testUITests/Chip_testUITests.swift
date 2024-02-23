@@ -8,26 +8,46 @@
 import XCTest
 
 final class Chip_testUITests: XCTestCase {
-
+    var app: XCUIApplication!
+    
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
+        app = XCUIApplication()
+        app.activate()
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        app.launch()
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        app = nil
+        super.tearDown()
     }
 
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testCollectionViewCellTap_NavigatesToDogImagesViewController() {
+            // check if table view layout is correct
+            let firstCell = app.collectionViews.cells.element(boundBy: 0)
+            XCTAssertTrue(firstCell.exists)
+        }
+    
+    func testImagesDisplayed() {
+        
         let app = XCUIApplication()
-        app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let collectionViewsQuery = app.collectionViews
+        let cell = collectionViewsQuery.children(matching: .cell).element(boundBy: 0)
+        cell.tap()
+        
+        let cell2 = collectionViewsQuery.scrollViews.children(matching: .cell).element
+        cell2.swipeLeft()
+        cell2.swipeLeft()
+        
+        let dogApiButton = app.navigationBars["Dog Pics"].buttons["Dog API"]
+        dogApiButton.tap()
+        cell.children(matching: .textView).element.swipeUp()
+        app.windows.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .collectionView).element.swipeUp()
+        collectionViewsQuery.children(matching: .cell).element(boundBy: 2).tap()
+        cell2.swipeLeft()
+        cell2.swipeLeft()
+        dogApiButton.tap()
+                
     }
 
     func testLaunchPerformance() throws {
